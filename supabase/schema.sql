@@ -380,10 +380,10 @@ grant select, insert, update, delete
 
 grant execute
   on function public.is_team_member(uuid),
-     function public.team_role(uuid),
-     function public.is_team_admin(uuid),
-     function public.project_team(uuid),
-     function public.task_team(uuid)
+     public.team_role(uuid),
+     public.is_team_admin(uuid),
+     public.project_team(uuid),
+     public.task_team(uuid)
   to authenticated;
 
 -- ----------------------------------------------------------------------------
