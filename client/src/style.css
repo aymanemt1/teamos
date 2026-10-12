@@ -1,0 +1,206 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background-color: #0d1117;
+  color: #e6edf3;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(124, 108, 240, 0.35);
+}
+
+/* Slim dark scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #30363d transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---- animations ---- */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.anim-fade-up {
+  animation: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.anim-pop {
+  animation: popIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.anim-drawer {
+  animation: slideInRight 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.anim-toast {
+  animation: toastIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+
+.skeleton {
+  background: linear-gradient(90deg, #161b22 25%, #1f2733 50%, #161b22 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* kanban drag states */
+.dragging-card {
+  opacity: 0.45;
+  transform: scale(0.98);
+}
+.drop-indicator {
+  height: 3px;
+  border-radius: 999px;
+  background: #7c6cf0;
+  box-shadow: 0 0 12px rgba(124, 108, 240, 0.8);
+  margin: 4px 2px;
+}
+
+/* form controls */
+.field {
+  width: 100%;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 14px;
+  color: #e6edf3;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field:focus {
+  border-color: #7c6cf0;
+  box-shadow: 0 0 0 3px rgba(124, 108, 240, 0.18);
+}
+.field::placeholder {
+  color: #6e7681;
+}
+select.field option {
+  background: #161b22;
+}
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8b949e;
+  margin-bottom: 6px;
+}
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #7c6cf0;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 10px;
+  padding: 9px 16px;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-primary:hover {
+  background: #6a5be0;
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  color: #e6edf3;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 10px;
+  padding: 8px 14px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-ghost:hover {
+  background: #2a3139;
+  border-color: #484f58;
+}
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(248, 81, 73, 0.12);
+  border: 1px solid rgba(248, 81, 73, 0.4);
+  color: #ff7b72;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 10px;
+  padding: 8px 14px;
+  transition: background 0.15s;
+}
+.btn-danger:hover {
+  background: rgba(248, 81, 73, 0.22);
+}
