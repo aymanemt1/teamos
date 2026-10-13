@@ -177,6 +177,8 @@ export const useTaskStore = defineStore('tasks', {
           tags: payload.tags ?? [],
           position: pos + 1,
           created_by: auth.user?.id ?? null,
+          // Creating straight into Done should count as a completion, same as the drawer.
+          completed_at: payload.status === 'done' ? new Date().toISOString() : null,
         })
         .select()
         .single()
@@ -222,11 +224,19 @@ export const useTaskStore = defineStore('tasks', {
     /** Persist a drag-and-drop reorder. `columns` = { status: [taskIds in display order] }. */
     async applyOrder(columns) {
       const changed = []
+      const now = new Date().toISOString()
       for (const [status, ids] of Object.entries(columns)) {
         ids.forEach((id, idx) => {
           const t = this.tasks.find((t) => t.id === id)
           if (t && (t.status !== status || (t.position ?? 0) !== idx)) {
-            changed.push({ task: t, from: t.status, to: status })
+            const from = t.status
+            changed.push({ task: t, from, to: status })
+            // Dragging into or out of Done must stamp completed_at. The drawer
+            // already does this; the board path was leaving the weekly chart blank.
+            if (from !== status) {
+              if (status === 'done') t.completed_at = now
+              else if (from === 'done') t.completed_at = null
+            }
             t.status = status
             t.position = idx
           }
@@ -235,12 +245,17 @@ export const useTaskStore = defineStore('tasks', {
       if (!changed.length) return
       try {
         const results = await Promise.all(
-          changed.map(({ task }) =>
-            supabase
-              .from('tasks')
-              .update({ status: task.status, position: task.position, updated_at: new Date().toISOString() })
-              .eq('id', task.id)
-          )
+          changed.map(({ task, from, to }) => {
+            const patch = {
+              status: task.status,
+              position: task.position,
+              updated_at: now,
+            }
+            if (from !== to && (to === 'done' || from === 'done')) {
+              patch.completed_at = task.completed_at
+            }
+            return supabase.from('tasks').update(patch).eq('id', task.id)
+          })
         )
         const failed = results.find((r) => r.error)
         if (failed) throw failed.error
