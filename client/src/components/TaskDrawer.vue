@@ -94,11 +94,12 @@
                 <li
                   v-for="s in subtasks"
                   :key="s.id"
-                  class="flex items-center gap-2.5 group rounded-lg px-2 py-1.5 hover:bg-card transition-colors"
+                  class="flex items-center gap-2.5 group rounded-lg px-2 py-1.5 hover:bg-card focus-within:bg-card transition-colors"
                 >
                   <button
+                    type="button"
                     @click="toggleSub(s)"
-                    class="w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors"
+                    class="w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                     :class="s.done ? 'bg-accent border-accent text-white' : 'border-border text-transparent hover:border-accent'"
                     :aria-label="s.done ? 'Mark not done' : 'Mark done'"
                   >
@@ -108,8 +109,9 @@
                     {{ s.title }}
                   </span>
                   <button
+                    type="button"
                     @click="removeSub(s.id)"
-                    class="text-muted hover:text-[#ff7b72] opacity-0 group-hover:opacity-100 transition-all"
+                    class="text-muted hover:text-[#ff7b72] rounded opacity-100 transition-all min-[900px]:opacity-0 min-[900px]:group-hover:opacity-100 min-[900px]:group-focus-within:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                     aria-label="Delete subtask"
                   >
                     <Icon name="trash" cls="w-4 h-4" />
