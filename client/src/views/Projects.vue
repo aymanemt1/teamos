@@ -45,19 +45,20 @@
             >
               {{ p.status === 'active' ? 'Active' : 'Archived' }}
             </span>
-            <div class="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button class="p-1.5 text-muted hover:text-white rounded-lg hover:bg-base" @click="openEdit(p)" aria-label="Edit project">
+            <div class="ml-auto flex items-center gap-1 opacity-100 transition-opacity min-[900px]:opacity-0 min-[900px]:group-hover:opacity-100 min-[900px]:group-focus-within:opacity-100">
+              <button type="button" class="p-1.5 text-muted hover:text-white rounded-lg hover:bg-base focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" @click="openEdit(p)" aria-label="Edit project">
                 <Icon name="pencil" cls="w-4 h-4" />
               </button>
               <button
-                class="p-1.5 text-muted hover:text-white rounded-lg hover:bg-base"
+                type="button"
+                class="p-1.5 text-muted hover:text-white rounded-lg hover:bg-base focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                 @click="toggleArchive(p)"
                 :aria-label="p.status === 'active' ? 'Archive project' : 'Restore project'"
                 :title="p.status === 'active' ? 'Archive' : 'Restore'"
               >
                 <Icon name="archive" cls="w-4 h-4" />
               </button>
-              <button class="p-1.5 text-muted hover:text-[#ff7b72] rounded-lg hover:bg-base" @click="askDelete(p)" aria-label="Delete project">
+              <button type="button" class="p-1.5 text-muted hover:text-[#ff7b72] rounded-lg hover:bg-base focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" @click="askDelete(p)" aria-label="Delete project">
                 <Icon name="trash" cls="w-4 h-4" />
               </button>
             </div>
