@@ -11,6 +11,20 @@
       <div class="w-56"><TeamSwitcher @change="reload" /></div>
     </div>
 
+    <div v-if="!loading && loadError" role="alert">
+      <EmptyState icon="alert" title="Couldn't load the dashboard" :subtitle="loadError">
+        <button type="button" class="btn-primary" @click="reload">Try again</button>
+      </EmptyState>
+    </div>
+
+    <EmptyState
+      v-else-if="!loading && !team.currentTeamId"
+      icon="users"
+      title="No team yet"
+      subtitle="You're not on a team yet. An admin creates teams and adds members in the Supabase dashboard."
+    />
+
+    <template v-else>
     <!-- stat cards -->
     <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
       <Skeleton v-for="i in 4" :key="i" cls="h-32" />
@@ -50,6 +64,7 @@
         </div>
       </div>
     </div>
+    </template>
   </div>
 </template>
 
@@ -66,6 +81,7 @@ import WeeklyBars from '../components/WeeklyBars.vue'
 import ActivityFeed from '../components/ActivityFeed.vue'
 import TeamSwitcher from '../components/TeamSwitcher.vue'
 import Skeleton from '../components/Skeleton.vue'
+import EmptyState from '../components/EmptyState.vue'
 
 const auth = useAuthStore()
 const team = useTeamStore()
@@ -73,6 +89,7 @@ const projectStore = useProjectStore()
 const taskStore = useTaskStore()
 
 const loading = ref(true)
+const loadError = ref('')
 const stats = ref({ activeProjects: 0, tasksCompleted: 0, members: 0, productivity: 0 })
 const statusBreakdown = ref([])
 const weekly = ref([])
@@ -87,12 +104,10 @@ const greeting = computed(() => {
 
 async function reload() {
   loading.value = true
+  loadError.value = ''
   try {
     await team.fetchTeams()
-    if (!team.currentTeamId) {
-      loading.value = false
-      return
-    }
+    if (!team.currentTeamId) return
     await Promise.all([
       projectStore.fetchProjects(team.currentTeamId),
       team.fetchMembers(),
@@ -132,6 +147,8 @@ async function reload() {
     weekly.value = days
 
     activities.value = await taskStore.fetchRecentActivity(team.currentTeamId)
+  } catch (e) {
+    loadError.value = e?.message || 'Could not load the dashboard.'
   } finally {
     loading.value = false
   }

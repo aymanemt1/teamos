@@ -30,6 +30,19 @@
       <Skeleton v-for="i in 4" :key="i" cls="flex-1 min-w-[260px] h-full" />
     </div>
 
+    <div v-else-if="loadError" role="alert">
+      <EmptyState icon="alert" title="Couldn't load the board" :subtitle="loadError">
+        <button type="button" class="btn-primary" @click="load">Try again</button>
+      </EmptyState>
+    </div>
+
+    <EmptyState
+      v-else-if="!team.currentTeamId"
+      icon="users"
+      title="No team yet"
+      subtitle="You're not on a team yet. An admin creates teams and adds members in the Supabase dashboard."
+    />
+
     <EmptyState
       v-else-if="!projectStore.active.length"
       icon="folder"
@@ -123,6 +136,7 @@ const projectStore = useProjectStore()
 const taskStore = useTaskStore()
 
 const loading = ref(true)
+const loadError = ref('')
 const selectedProjectId = ref('')
 const showModal = ref(false)
 const modalStatus = ref('backlog')
@@ -141,6 +155,7 @@ const currentProject = computed(() => projectStore.byId(selectedProjectId.value)
 
 async function load() {
   loading.value = true
+  loadError.value = ''
   try {
     await team.fetchTeams()
     if (!team.currentTeamId) return
@@ -149,6 +164,8 @@ async function load() {
       selectedProjectId.value = projectStore.active[0]?.id ?? ''
     }
     if (selectedProjectId.value) await loadProject(selectedProjectId.value)
+  } catch (e) {
+    loadError.value = e?.message || 'Could not load the board.'
   } finally {
     loading.value = false
   }

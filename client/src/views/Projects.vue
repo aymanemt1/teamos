@@ -3,9 +3,15 @@
     <div class="flex flex-wrap items-center gap-3 mb-6 anim-fade-up">
       <div>
         <h1 class="text-2xl font-extrabold tracking-tight text-white">Projects</h1>
-        <p class="text-sm text-muted mt-1">{{ projectStore.projects.length }} project(s) in this team</p>
+        <p class="text-sm text-muted mt-1">
+          {{
+            team.currentTeam
+              ? `${projectStore.projects.length} project(s) in this team`
+              : 'Projects for your team will show up here.'
+          }}
+        </p>
       </div>
-      <button class="btn-primary ml-auto" @click="openCreate">
+      <button v-if="loading || team.currentTeamId" type="button" class="btn-primary ml-auto" @click="openCreate">
         <Icon name="plus" cls="w-4 h-4" /> New project
       </button>
     </div>
@@ -13,6 +19,19 @@
     <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
       <Skeleton v-for="i in 6" :key="i" cls="h-44" />
     </div>
+
+    <div v-else-if="loadError" role="alert">
+      <EmptyState icon="alert" title="Couldn't load projects" :subtitle="loadError">
+        <button type="button" class="btn-primary" @click="load">Try again</button>
+      </EmptyState>
+    </div>
+
+    <EmptyState
+      v-else-if="!team.currentTeamId"
+      icon="users"
+      title="No team yet"
+      subtitle="You're not on a team yet. An admin creates teams and adds members in the Supabase dashboard."
+    />
 
     <EmptyState
       v-else-if="!projectStore.projects.length"
@@ -119,6 +138,7 @@ const projectStore = useProjectStore()
 const taskStore = useTaskStore()
 
 const loading = ref(true)
+const loadError = ref('')
 const modalOpen = ref(false)
 const editing = ref(null)
 const confirmOpen = ref(false)
@@ -145,11 +165,14 @@ async function loadCounts() {
 
 async function load() {
   loading.value = true
+  loadError.value = ''
   try {
     await team.fetchTeams()
     if (!team.currentTeamId) return
     await projectStore.fetchProjects(team.currentTeamId)
     await loadCounts()
+  } catch (e) {
+    loadError.value = e?.message || 'Could not load projects.'
   } finally {
     loading.value = false
   }

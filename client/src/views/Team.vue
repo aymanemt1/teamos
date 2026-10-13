@@ -3,12 +3,16 @@
     <div class="mb-6 anim-fade-up">
       <h1 class="text-2xl font-extrabold tracking-tight text-white">Team</h1>
       <p class="text-sm text-muted mt-1">
-        {{ team.members.length }} member(s) in {{ team.currentTeam?.name || 'this team' }}
+        {{
+          team.currentTeam
+            ? `${team.members.length} member(s) in ${team.currentTeam.name}`
+            : 'Members of your team will show up here.'
+        }}
       </p>
     </div>
 
     <!-- add member -->
-    <div v-if="team.canManage" class="bg-card border border-border rounded-2xl p-5 mb-6 anim-fade-up stagger-1">
+    <div v-if="team.canManage && !loadError" class="bg-card border border-border rounded-2xl p-5 mb-6 anim-fade-up stagger-1">
       <h2 class="font-bold text-white flex items-center gap-2">
         <Icon name="userPlus" cls="w-5 h-5 text-accent" /> Add member
       </h2>
@@ -17,12 +21,15 @@
         join this team immediately.
       </p>
       <form @submit.prevent="addMember" class="flex flex-col sm:flex-row gap-2">
+        <label class="sr-only" for="add-member-email">Email</label>
         <input
+          id="add-member-email"
           v-model="email"
           type="email"
           class="field flex-1"
           placeholder="colleague@company.com"
           required
+          autocomplete="email"
         />
         <button type="submit" class="btn-primary shrink-0" :disabled="adding">
           {{ adding ? 'Adding...' : 'Add to team' }}
@@ -35,6 +42,17 @@
     <div v-if="loading" class="space-y-3">
       <Skeleton v-for="i in 4" :key="i" cls="h-16" />
     </div>
+    <div v-else-if="loadError" role="alert">
+      <EmptyState icon="alert" title="Couldn't load the team" :subtitle="loadError">
+        <button type="button" class="btn-primary" @click="load">Try again</button>
+      </EmptyState>
+    </div>
+    <EmptyState
+      v-else-if="!team.currentTeamId"
+      icon="users"
+      title="No team yet"
+      subtitle="You're not on a team yet. An admin creates teams and adds members in the Supabase dashboard."
+    />
     <div v-else class="bg-card border border-border rounded-2xl overflow-hidden anim-fade-up stagger-2">
       <div
         v-for="m in team.members"
@@ -104,11 +122,13 @@ import Avatar from '../components/Avatar.vue'
 import Icon from '../components/Icon.vue'
 import Skeleton from '../components/Skeleton.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
+import EmptyState from '../components/EmptyState.vue'
 
 const auth = useAuthStore()
 const team = useTeamStore()
 
 const loading = ref(true)
+const loadError = ref('')
 const email = ref('')
 const adding = ref(false)
 const addError = ref('')
@@ -125,9 +145,12 @@ function roleBadge(role) {
 
 async function load() {
   loading.value = true
+  loadError.value = ''
   try {
     await team.fetchTeams()
     if (team.currentTeamId) await team.fetchMembers()
+  } catch (e) {
+    loadError.value = e?.message || 'Could not load the team.'
   } finally {
     loading.value = false
   }
